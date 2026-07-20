@@ -2,274 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import {
+  createQuizSession,
+  createSessionSeed,
+  scoreQuiz,
+  type QuizQuestion,
+} from "./quiz-engine";
 
 type Stage = "intro" | "quiz" | "birth" | "result";
-type Choice = {
-  label: string;
-  detail: string;
-  law: number;
-  good: number;
-};
-type Question = {
-  eyebrow: string;
-  prompt: string;
-  choices: Choice[];
-};
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-
-const QUESTIONS: Question[] = [
-  {
-    eyebrow: "The borrowed key",
-    prompt:
-      "You find a master key that opens every locked door in your city. What do you do first?",
-    choices: [
-      {
-        label: "Turn it in",
-        detail: "Power this broad needs accountable hands, not a private pocket.",
-        law: 2,
-        good: 1,
-      },
-      {
-        label: "Use it once",
-        detail: "Someone is trapped behind a door the authorities refuse to open.",
-        law: -1,
-        good: 2,
-      },
-      {
-        label: "Keep the advantage",
-        detail: "A door is simply an opportunity with hinges.",
-        law: -2,
-        good: -2,
-      },
-    ],
-  },
-  {
-    eyebrow: "The public lie",
-    prompt:
-      "A beloved leader built peace on a lie. Revealing it could fracture the city.",
-    choices: [
-      {
-        label: "Tell everyone",
-        detail: "People deserve the truth, even when it arrives like a storm.",
-        law: -1,
-        good: 1,
-      },
-      {
-        label: "Protect the peace",
-        detail: "Stability is a public good; disclose it carefully, if ever.",
-        law: 2,
-        good: 1,
-      },
-      {
-        label: "Trade the secret",
-        detail: "Truth has value. Spend it where it buys the most power.",
-        law: 0,
-        good: -2,
-      },
-    ],
-  },
-  {
-    eyebrow: "The fallen rival",
-    prompt:
-      "Your fiercest rival is injured at the edge of a dangerous wilderness.",
-    choices: [
-      {
-        label: "Carry them home",
-        detail: "No contest is worth a life, and mercy settles its own score.",
-        law: 0,
-        good: 2,
-      },
-      {
-        label: "Leave supplies",
-        detail: "Give them a fair chance, but do not inherit their consequences.",
-        law: 0,
-        good: 0,
-      },
-      {
-        label: "Walk away",
-        detail: "They would not save you. The wilderness can decide.",
-        law: -1,
-        good: -2,
-      },
-    ],
-  },
-  {
-    eyebrow: "The unjust statute",
-    prompt:
-      "A new law is legal, popular, and quietly cruel to a powerless minority.",
-    choices: [
-      {
-        label: "Fight through the system",
-        detail: "Build a coalition, challenge it in court, and make reform last.",
-        law: 2,
-        good: 2,
-      },
-      {
-        label: "Break it openly",
-        detail: "An unjust law deserves visible defiance, consequences included.",
-        law: -2,
-        good: 2,
-      },
-      {
-        label: "Exploit the loophole",
-        detail: "If the law is a weapon, learn to aim it before anyone aims at you.",
-        law: 1,
-        good: -2,
-      },
-    ],
-  },
-  {
-    eyebrow: "The last seat",
-    prompt:
-      "A rescue craft has one seat left. Three strangers reach it at once.",
-    choices: [
-      {
-        label: "Use a fair draw",
-        detail: "No life is inherently worth more; chance can carry the burden.",
-        law: 1,
-        good: 1,
-      },
-      {
-        label: "Choose the most vulnerable",
-        detail: "Need, not status, should decide who receives protection.",
-        law: -1,
-        good: 2,
-      },
-      {
-        label: "Take the seat",
-        detail: "Someone will choose themselves. Better that it is you.",
-        law: -1,
-        good: -2,
-      },
-    ],
-  },
-  {
-    eyebrow: "The oath",
-    prompt:
-      "You swore never to reveal a friend’s secret. Keeping it now may hurt an innocent person.",
-    choices: [
-      {
-        label: "Keep the oath",
-        detail: "Trust means little if it disappears the moment it becomes costly.",
-        law: 2,
-        good: -1,
-      },
-      {
-        label: "Break it",
-        detail: "Promises exist to protect people, not to become shields for harm.",
-        law: -2,
-        good: 2,
-      },
-      {
-        label: "Force a confession",
-        detail: "Honor the words of the oath while making silence impossible.",
-        law: 1,
-        good: 0,
-      },
-    ],
-  },
-  {
-    eyebrow: "The impossible cure",
-    prompt:
-      "You can save thousands with a cure stolen from the scientist who created it.",
-    choices: [
-      {
-        label: "Negotiate first",
-        detail: "Respect the creator, mobilize pressure, and exhaust lawful paths.",
-        law: 2,
-        good: 1,
-      },
-      {
-        label: "Release it freely",
-        detail: "No one owns the right to keep thousands alive.",
-        law: -2,
-        good: 2,
-      },
-      {
-        label: "Sell it yourself",
-        detail: "Risk deserves reward, especially when the product is priceless.",
-        law: -1,
-        good: -2,
-      },
-    ],
-  },
-  {
-    eyebrow: "The empty throne",
-    prompt:
-      "By accident, you become the only person able to command a powerful kingdom.",
-    choices: [
-      {
-        label: "Build institutions",
-        detail: "Make the kingdom just, then make yourself unnecessary.",
-        law: 2,
-        good: 2,
-      },
-      {
-        label: "Dissolve the throne",
-        detail: "No single person should hold this power—not even a good one.",
-        law: -2,
-        good: 1,
-      },
-      {
-        label: "Rule without apology",
-        detail: "Power unused is merely power waiting for a less capable hand.",
-        law: 1,
-        good: -2,
-      },
-    ],
-  },
-  {
-    eyebrow: "The hungry crowd",
-    prompt:
-      "A merchant hoards food during a famine while families starve outside.",
-    choices: [
-      {
-        label: "Seize and distribute it",
-        detail: "Property ends where preventable suffering begins.",
-        law: -2,
-        good: 2,
-      },
-      {
-        label: "Compel a legal sale",
-        detail: "Use emergency authority and preserve an accountable process.",
-        law: 2,
-        good: 1,
-      },
-      {
-        label: "Guard the warehouse",
-        detail: "Scarcity rewards whoever can defend what they have.",
-        law: 1,
-        good: -2,
-      },
-    ],
-  },
-  {
-    eyebrow: "The story told of you",
-    prompt:
-      "At the end of your legend, which sentence would you most want to be true?",
-    choices: [
-      {
-        label: "They made the world kinder",
-        detail: "Your strength became shelter, especially for people unlike you.",
-        law: 0,
-        good: 2,
-      },
-      {
-        label: "They never bent",
-        detail: "Your principles endured pressure, temptation, and time.",
-        law: 2,
-        good: 0,
-      },
-      {
-        label: "They were never controlled",
-        detail: "No law, ruler, custom, or fear ever wrote your path for you.",
-        law: -2,
-        good: 0,
-      },
-    ],
-  },
-];
 
 const MONTHS = [
   "January",
@@ -671,6 +413,10 @@ export default function Home() {
   const [stage, setStage] = useState<Stage>("intro");
   const [question, setQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>(() =>
+    createQuizSession(0x4d4f5241),
+  );
+  const [sessionSeed, setSessionSeed] = useState(0x4d4f5241);
   const [month, setMonth] = useState(0);
   const [day, setDay] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -680,28 +426,22 @@ export default function Home() {
     : 31;
 
   const scores = useMemo(
-    () =>
-      answers.reduce(
-        (total, choiceIndex, index) => {
-          const choice = QUESTIONS[index]?.choices[choiceIndex];
-          if (choice) {
-            total.law += choice.law;
-            total.good += choice.good;
-          }
-          return total;
-        },
-        { law: 0, good: 0 },
-      ),
-    [answers],
+    () => scoreQuiz(quizQuestions, answers),
+    [answers, quizQuestions],
   );
 
   const alignment = alignmentFor(scores.law, scores.good);
   const zodiacKey = zodiacFor(month || 1, day || 1);
   const zodiac = ZODIAC[zodiacKey];
   const seed =
-    answers.reduce((sum, value, index) => sum + (value + 1) * (index + 7), 0) +
-    month * 17 +
-    day * 31;
+    (sessionSeed +
+      answers.reduce(
+        (sum, value, index) => sum + (value + 1) * (index + 7),
+        0,
+      ) +
+      month * 17 +
+      day * 31) >>>
+    0;
   const variant = VARIANTS[Math.abs(seed) % VARIANTS.length];
   const familiarName = zodiac.names[Math.abs(seed) % zodiac.names.length];
   const profile = ALIGNMENTS[alignment];
@@ -718,17 +458,23 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const begin = () =>
+  const begin = () => {
+    const nextSeed = createSessionSeed();
+    const nextQuestions = createQuizSession(nextSeed);
     transitionTo(() => {
+      setSessionSeed(nextSeed);
+      setQuizQuestions(nextQuestions);
       setAnswers([]);
       setQuestion(0);
+      setCopied(false);
       setStage("quiz");
     });
+  };
 
   const answer = (choiceIndex: number) => {
     const next = [...answers.slice(0, question), choiceIndex];
     setAnswers(next);
-    if (question === QUESTIONS.length - 1) {
+    if (question === quizQuestions.length - 1) {
       transitionTo(() => setStage("birth"));
     } else {
       transitionTo(() => setQuestion((current) => current + 1));
@@ -739,7 +485,7 @@ export default function Home() {
     if (stage === "birth") {
       transitionTo(() => {
         setStage("quiz");
-        setQuestion(QUESTIONS.length - 1);
+        setQuestion(quizQuestions.length - 1);
       });
       return;
     }
@@ -796,7 +542,7 @@ export default function Home() {
         <div className="header-meta">
           <span>D&amp;D alignment × zodiac</span>
           <span className="live-dot" aria-hidden="true" />
-          <span>Familiar engine v1</span>
+          <span>Familiar engine v2</span>
         </div>
       </header>
 
@@ -812,9 +558,9 @@ export default function Home() {
               does your <em>soul</em> take?
             </h1>
             <p className="intro-deck">
-              Ten impossible choices. One birth date. A celestial animal
-              familiar forged from your ethics, your stars, and one thread of
-              beautiful chance.
+              Ten impossible choices, drawn from a shifting bank of thirty. One
+              birth date. A celestial animal familiar forged from your ethics,
+              your stars, and one thread of beautiful chance.
             </p>
             <button className="primary-cta" onClick={begin}>
               <span>Begin the divination</span>
@@ -867,12 +613,18 @@ export default function Home() {
             <div className="progress-copy">
               <span>
                 Question {String(question + 1).padStart(2, "0")} /{" "}
-                {QUESTIONS.length}
+                {quizQuestions.length}
               </span>
-              <strong>{Math.round(((question + 1) / QUESTIONS.length) * 100)}%</strong>
+              <strong>
+                {Math.round(((question + 1) / quizQuestions.length) * 100)}%
+              </strong>
             </div>
             <div className="progress-track" aria-hidden="true">
-              <i style={{ width: `${((question + 1) / QUESTIONS.length) * 100}%` }} />
+              <i
+                style={{
+                  width: `${((question + 1) / quizQuestions.length) * 100}%`,
+                }}
+              />
             </div>
             <p>
               Choose the response closest to your instinct—not the one that
@@ -881,14 +633,17 @@ export default function Home() {
           </div>
 
           <div className="question-wrap">
-            <p className="kicker">{QUESTIONS[question].eyebrow}</p>
-            <h2 id="question-title">{QUESTIONS[question].prompt}</h2>
+            <p className="kicker">{quizQuestions[question].eyebrow}</p>
+            <h2 id="question-title">{quizQuestions[question].prompt}</h2>
             <div className="choice-list">
-              {QUESTIONS[question].choices.map((choice, index) => (
+              {quizQuestions[question].choices.map((choice, index) => (
                 <button
-                  className="choice-card"
+                  className={`choice-card ${
+                    answers[question] === index ? "is-selected" : ""
+                  }`}
                   key={choice.label}
                   onClick={() => answer(index)}
+                  aria-pressed={answers[question] === index}
                 >
                   <span className="choice-number">
                     {String(index + 1).padStart(2, "0")}

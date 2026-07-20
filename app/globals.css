@@ -601,6 +601,19 @@ select:focus-visible {
   background: linear-gradient(90deg, rgb(213 255 79 / 9%), rgb(255 255 255 / 1%));
 }
 
+.choice-card.is-selected {
+  padding-inline: 21px 16px;
+  background:
+    linear-gradient(90deg, rgb(213 255 79 / 14%), rgb(255 255 255 / 2%));
+  box-shadow: inset 2px 0 0 var(--acid);
+}
+
+.choice-card.is-selected .choice-number,
+.choice-card.is-selected .choice-arrow {
+  color: var(--acid);
+  opacity: 1;
+}
+
 .choice-number {
   color: #737582;
   font-family: var(--mono);
