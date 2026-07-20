@@ -2,10 +2,13 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const socialImageUrl = `${siteUrl.replace(/\/$/, "")}/og.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: siteUrl,
+  },
   title: "Moralis — Discover Your Celestial Familiar",
   description:
     "A cinematic moral alignment and zodiac quiz that reveals your anime-style celestial animal familiar.",
@@ -18,13 +21,15 @@ export const metadata: Metadata = {
     "celestial familiar",
   ],
   openGraph: {
+    url: siteUrl,
+    siteName: "Moralis",
     title: "Moralis — What Shape Does Your Soul Take?",
     description:
       "Discover the celestial animal familiar formed by your moral alignment, zodiac, and a thread of chance.",
     type: "website",
     images: [
       {
-        url: `${basePath}/og.png`,
+        url: socialImageUrl,
         width: 1733,
         height: 909,
         alt: "Moralis celestial fox familiar beneath the words What Shape Does Your Soul Take?",
@@ -36,7 +41,7 @@ export const metadata: Metadata = {
     title: "Moralis — What Shape Does Your Soul Take?",
     description:
       "Discover the celestial animal familiar formed by your ethics and your stars.",
-    images: [`${basePath}/og.png`],
+    images: [socialImageUrl],
   },
 };
 

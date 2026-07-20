@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="night" x1="8" y1="4" x2="57" y2="61" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#17132f"/>
+      <stop offset="0.55" stop-color="#080914"/>
+      <stop offset="1" stop-color="#11182c"/>
+    </linearGradient>
+    <linearGradient id="oracle" x1="13" y1="9" x2="54" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#d5ff4f"/>
+      <stop offset="0.52" stop-color="#78e6ff"/>
+      <stop offset="1" stop-color="#b88cff"/>
+    </linearGradient>
+    <radialGradient id="core">
+      <stop stop-color="#ffffff"/>
+      <stop offset="0.35" stop-color="#d5ff4f"/>
+      <stop offset="1" stop-color="#78e6ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#night)"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="14.5" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="3"/>
+  <path d="M32 8 56 32 32 56 8 32 32 8Z" fill="#080914" stroke="url(#oracle)" stroke-width="3.5"/>
+  <path d="M32 17c1.4 8.8 6.2 13.6 15 15-8.8 1.4-13.6 6.2-15 15-1.4-8.8-6.2-13.6-15-15 8.8-1.4 13.6-6.2 15-15Z" fill="url(#oracle)"/>
+  <circle cx="32" cy="32" r="9" fill="url(#core)"/>
+  <circle cx="32" cy="32" r="2.2" fill="#ffffff"/>
+</svg>

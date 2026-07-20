@@ -93,8 +93,10 @@ test("exports a complete static GitHub Pages site", async () => {
   assert.match(html, /Moralis/);
   assert.match(html, /What shape/);
   assert.match(html, /Begin the divination/);
+  assert.match(html, /rel="icon"/);
   assert.doesNotMatch(html, /codex-preview|loading skeleton/i);
   await access(new URL("out/_next/", root));
+  await access(new URL("out/icon.svg", root));
 });
 
 test("ships one generated familiar for every zodiac sign", async () => {
@@ -121,8 +123,9 @@ test("ships one generated familiar for every zodiac sign", async () => {
 });
 
 test("keeps the experience private and backend-free", async () => {
-  const [page, config] = await Promise.all([
+  const [page, layout, config] = await Promise.all([
     readFile(new URL("app/page.tsx", root), "utf8"),
+    readFile(new URL("app/layout.tsx", root), "utf8"),
     readFile(new URL("next.config.ts", root), "utf8"),
   ]);
   assert.match(config, /output:\s*"export"/);
@@ -130,4 +133,6 @@ test("keeps the experience private and backend-free", async () => {
   assert.doesNotMatch(page, /\bfetch\s*\(|\/api\/|localStorage|sessionStorage/);
   assert.match(page, /getContext\("webgl"/);
   assert.match(page, /startViewTransition/);
+  assert.match(layout, /socialImageUrl/);
+  assert.doesNotMatch(layout, /`\$\{basePath\}\/og\.png`/);
 });

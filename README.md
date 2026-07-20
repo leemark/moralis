@@ -6,11 +6,12 @@ celestial animal familiar.
 
 ## What it includes
 
-- Ten scenario-based moral questions scored across order/freedom and
-  altruism/self-interest axes
+- Ten scenario-based moral questions drawn from a balanced bank of thirty and
+  scored across order/freedom and altruism/self-interest axes
 - Month-and-day-only zodiac detection (the year is never requested)
 - Twelve original anime-style familiar portraits
-- Deterministic variation that changes the familiar name and temperament
+- Secure per-reading variation that shuffles questions and answers and changes
+  the familiar name and temperament while keeping the active reading stable
 - A custom WebGL nebula shader with motion-reduction support
 - Progressive CSS including OKLCH color mixing, registered custom properties,
   view transitions, scroll timelines, container queries, and shaped corners
